@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Candidate Editor</title>
+</head>
+<body>
+
+<div>
+    <input id="candidate-id" placeholder="Add id for candidate to find">
+    <button id="btn-find">Find Candidate</button>
+</div>
+<p id="error1" style="color: red"></p>
+
+<form>
+    <p>ID: <span id="id-for-candidate"></span> </p>
+    <div><input id="f-name" placeholder="firstName" /></div>
+    <br />
+    <div><input id="l-name" placeholder="lastName"></div>
+    <br />
+<!--    <div><input id="n-party" placeholder="party"></div>-->
+    <label for="party-select">Choose a Party:</label>
+
+    <select name="party" id="party-select">
+
+    </select>
+
+    <button id="btn-save">Save Changes</button>
+</form>
+<p id="status"></p>
+<p><a href="/">Back</a></p>
+
+<script>
+    sessionStorage.setItem("SERVER_URL_PARTIES","api/parties");
+    const SERVER_URL_PARTIES = sessionStorage.getItem("SERVER_URL_PARTIES");
+
+    fetch(SERVER_URL_PARTIES)
+        .then(handleHttpErrorsAsync)
+        .then(list=> {
+            list.forEach(x =>{
+                const option = document.createElement("option")
+                option.value = x.id; // laver et element som er en option på linje 41. option value assigner til id
+                option.text = x.party; // option text assigner vi til party.
+                document.getElementById("party-select").appendChild(option) // peger på linje 24 i vores select. så vi lægger vores option ind i selecten via appendchild.
+            })
+        })
+        .catch(e=>document.getElementById("error1").innerText="ups"+e.message)
+
+
+
+    async function handleHttpErrorsAsync(res) {
+        if (!res.ok) {
+            const errorResponse = await res.json();
+            const error = new Error(errorResponse.message)
+            error.apiError = errorResponse
+            throw error
+        }
+        return res.json()
+    }
+
+    const SERVER_URL = sessionStorage.getItem("SERVER_URL_CANDIDATES");
+
+    document.getElementById("btn-find").onclick = ()=>{
+        fetch(SERVER_URL+"/"+document.getElementById("candidate-id").value)
+            .then(handleHttpErrorsAsync)
+            .then(d=> {
+                document.getElementById("id-for-candidate").textContent = d.id
+                document.getElementById("f-name").value=d.firstName
+                document.getElementById("l-name").value=d.lastName
+                document.getElementById("party-select").value=d.party.id
+            })
+            .catch(e=>document.getElementById("error1").innerText="ups"+e.message)
+    }
+
+
+
+
+    document.getElementById("btn-save").onclick = (evt)=>{
+        evt.preventDefault()
+        const newCandidate = {}
+        newCandidate.firstName = document.getElementById("f-name").value
+        newCandidate.lastName = document.getElementById("l-name").value
+        newCandidate.party = {id:document.getElementById("party-select").value}
+        const options = {
+            method: "PUT",
+            headers : {
+                'Content-Type' : 'application/json'
+            },
+            body: JSON.stringify(newCandidate)
+        }
+        fetch(SERVER_URL+"/"+document.getElementById("candidate-id").value,options)
+            .then(res=>res.json())
+            .then(p=> document.getElementById("status").innerText = JSON.stringify(p))
+    }
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Delete Candidate</title>
+</head>
+<body>
+
+<div>
+    <input id="candidate-id" placeholder="Add ID for candidate to delete">
+    <button type="button" id="btn-delete">Delete Person</button>
+</div>
+
+<p id="status"></p>
+<p><a href="/">Back</a></p>
+
+<script>
+
+    async function handleHttpErrorsAsync(res) {
+        if (!res.ok) {
+            const errorResponse = await res.json();
+            const error = new Error(errorResponse.message)
+            error.apiError = errorResponse
+            throw error
+        }
+        return res.json()
+    }
+
+
+    const SERVER_URL = sessionStorage.getItem("SERVER_URL_CANDIDATES");
+
+
+    document.getElementById("btn-delete").onclick = (evt)=> { console.log(document.getElementById("candidate-id").value)
+        evt.preventDefault() // ikke opdaterer hjemmesiden
+        evt.stopPropagation() // stopper event bubbling
+        const options = { //options er for at vi gerne vil lave noget andet en getmapping
+            method: "DELETE",
+            headers: {'Content-Type': 'application/json'
+            }
+        }
+        fetch(SERVER_URL+"/"+document.getElementById("candidate-id").value,options)
+            .then(handleHttpErrorsAsync)
+            .then(res=>res.json())
+            .then(p=> document.getElementById("status").innerText =JSON.stringify(p))
+            .catch(e=>document.getElementById("error1").innerText="ups"+e.message)
+
+    }
+</script>
+
+
+</body>
+</html>

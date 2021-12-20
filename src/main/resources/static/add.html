@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+<h1>Add Candidate</h1>
+<form>
+    <div><input id="f-name" placeholder="firstName" /></div>
+    <br />
+    <div><input id="l-name" placeholder="lastName"></div>
+    <br />
+    <div><input id="n-party" placeholder="party-id"></div>
+    <button type="button" id="btn-save">Save</button>
+</form>
+<p id="status"></p>
+<p><a href="/">Back</a></p>
+
+
+<script>
+
+    const SERVER_URL = sessionStorage.getItem("SERVER_URL_CANDIDATES");
+    document.getElementById("btn-save").onclick = (evt) => {
+        evt.preventDefault()
+
+
+
+        const firstName = document.getElementById('f-name').value
+        const lastName = document.getElementById('l-name').value
+        const party = document.getElementById('n-party').value
+
+        const newCandidate = {
+            firstName,lastName,party:{id:party}
+        }
+
+
+
+        fetch(SERVER_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newCandidate),
+        })
+            .then(response => response.json())
+            .then(newCandidate => {
+                console.log(newCandidate)
+            })
+    }
+</script>
+</body>
+
+</html>
