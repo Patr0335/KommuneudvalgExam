@@ -24,4 +24,9 @@ public class PartyController {
     Iterable<Party> getAll() {
         return partyRepository.findAll();
     }
+
+    @GetMapping("/{id}")
+    Party getOne(@PathVariable("id") int id) throws NotFoundException {
+        return partyRepository.findById(id).orElseThrow(()-> new NotFoundException("User not found"));
+    }
 }
